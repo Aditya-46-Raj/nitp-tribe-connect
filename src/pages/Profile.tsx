@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import Navbar from "@/components/Navbar";
+import ProfileEdit from "@/components/ProfileEdit";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   Edit, 
   Mail, 
@@ -18,17 +20,16 @@ import {
   Users
 } from "lucide-react";
 
-interface ProfileProps {
-  user: {
-    name: string;
-    email: string;
-    role: 'admin' | 'contributor' | 'user';
-    avatar?: string;
-    badge?: string;
-  };
-}
+const Profile = () => {
+  const { profile } = useAuth();
 
-const Profile = ({ user }: ProfileProps) => {
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
   const profileStats = {
     posts: 12,
     comments: 45,
@@ -66,7 +67,7 @@ const Profile = ({ user }: ProfileProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={user} />
+      <Navbar />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -76,37 +77,49 @@ const Profile = ({ user }: ProfileProps) => {
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
                   <Avatar className="h-24 w-24 ring-4 ring-primary/20">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={profile.avatar_url || undefined} alt={profile.name} />
                     <AvatarFallback className="bg-gradient-primary text-primary-foreground text-2xl">
-                      {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
                   
                   <div className="space-y-2">
-                    <h1 className="text-xl font-bold text-foreground">{user.name}</h1>
+                    <h1 className="text-xl font-bold text-foreground">{profile.name}</h1>
                     <div className="flex items-center justify-center space-x-2">
                       <Mail size={14} className="text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">{user.email}</span>
+                      <span className="text-sm text-muted-foreground">{profile.email}</span>
                     </div>
                     <div className="flex items-center justify-center space-x-2">
                       <Calendar size={14} className="text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Joined January 2024</span>
+                      <span className="text-sm text-muted-foreground">
+                        Joined {new Date(profile.created_at).toLocaleDateString('en-US', { 
+                          month: 'long', 
+                          year: 'numeric' 
+                        })}
+                      </span>
                     </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                      {user.role}
-                    </Badge>
-                    {user.badge && (
-                      <Badge variant="outline">{user.badge}</Badge>
+                    {profile.bio && (
+                      <p className="text-sm text-center text-muted-foreground mt-2">
+                        {profile.bio}
+                      </p>
                     )}
                   </div>
 
-                  <Button variant="outline" className="w-full">
-                    <Edit size={16} />
-                    Edit Profile
-                  </Button>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'}>
+                      {profile.role}
+                    </Badge>
+                    {profile.batch && (
+                      <Badge variant="outline">{profile.batch}</Badge>
+                    )}
+                  </div>
+
+                  <ProfileEdit>
+                    <Button variant="outline" className="w-full">
+                      <Edit size={16} />
+                      Edit Profile
+                    </Button>
+                  </ProfileEdit>
                 </div>
               </CardHeader>
             </Card>
