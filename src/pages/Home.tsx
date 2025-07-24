@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import PostCard from "@/components/PostCard";
 import Navbar from "@/components/Navbar";
-import { useAuth } from "@/contexts/AuthContext";
 import { 
   Search, 
   Plus, 
@@ -15,6 +14,15 @@ import {
   Calendar,
   Star
 } from "lucide-react";
+
+// Mock data
+const mockUser = {
+  name: "Rahul Kumar",
+  email: "rahul.kumar@nitp.ac.in",
+  role: 'contributor' as const,
+  avatar: "",
+  badge: "Top Contributor"
+};
 
 const mockPosts = [
   {
@@ -106,7 +114,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar user={mockUser} />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

@@ -14,45 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          batch: string | null
-          bio: string | null
-          created_at: string
-          email: string
-          id: string
-          name: string
-          role: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          batch?: string | null
-          bio?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          name: string
-          role?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          avatar_url?: string | null
-          batch?: string | null
-          bio?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          name?: string
-          role?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
