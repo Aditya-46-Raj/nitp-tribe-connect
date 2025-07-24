@@ -15,12 +15,20 @@ import {
   Trophy
 } from "lucide-react";
 import nitpLogo from "@/assets/nitp-tribe-logo.png";
-import { useAuth } from "@/contexts/AuthContext";
 
-const Navbar = () => {
+interface NavbarProps {
+  user?: {
+    name: string;
+    email: string;
+    role: 'admin' | 'contributor' | 'user';
+    avatar?: string;
+    badge?: string;
+  };
+}
+
+const Navbar = ({ user }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { profile, signOut } = useAuth();
 
   const navItems = [
     { name: "Home", path: "/", icon: Home, roles: ['admin', 'contributor', 'user'] },
@@ -32,12 +40,12 @@ const Navbar = () => {
   ];
 
   const visibleNavItems = navItems.filter(item => 
-    profile && item.roles.includes(profile.role)
+    user && item.roles.includes(user.role)
   );
 
   const isActive = (path: string) => location.pathname === path;
 
-  if (!profile) return null;
+  if (!user) return null;
 
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
@@ -78,22 +86,22 @@ const Navbar = () => {
             {/* User Avatar */}
             <div className="flex items-center space-x-3">
               <div className="hidden sm:block text-right">
-                <p className="text-sm font-medium text-foreground">{profile.name}</p>
+                <p className="text-sm font-medium text-foreground">{user.name}</p>
                 <div className="flex items-center space-x-2">
-                  <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
-                    {profile.role}
+                  <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
+                    {user.role}
                   </Badge>
-                  {profile.batch && (
+                  {user.badge && (
                     <Badge variant="outline" className="text-xs">
-                      {profile.batch}
+                      {user.badge}
                     </Badge>
                   )}
                 </div>
               </div>
               <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                <AvatarImage src={profile.avatar_url || undefined} alt={profile.name} />
+                <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
-                  {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -133,10 +141,7 @@ const Navbar = () => {
                 );
               })}
               <div className="border-t border-border pt-2 mt-2">
-                <button 
-                  className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full"
-                  onClick={() => signOut()}
-                >
+                <button className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full">
                   <LogOut size={18} />
                   <span>Sign Out</span>
                 </button>
