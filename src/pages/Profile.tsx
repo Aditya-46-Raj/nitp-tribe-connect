@@ -77,8 +77,11 @@ const Profile = () => {
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
                   <Avatar className="h-24 w-24 ring-4 ring-primary/20">
-                    <AvatarImage src={profile.avatar_url || undefined} alt={profile.name} />
-                    <AvatarFallback className="bg-gradient-primary text-primary-foreground text-2xl">
+                    <AvatarImage 
+                      src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
+                      alt={profile.name} 
+                    />
+                    <AvatarFallback className="bg-muted text-muted-foreground text-2xl">
                       {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>

@@ -91,8 +91,11 @@ const Navbar = () => {
                 </div>
               </div>
               <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                <AvatarImage src={profile.avatar_url || undefined} alt={profile.name} />
-                <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
+                <AvatarImage 
+                  src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
+                  alt={profile.name} 
+                />
+                <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                   {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
