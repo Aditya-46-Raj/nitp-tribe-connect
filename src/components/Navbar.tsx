@@ -73,8 +73,19 @@ const Navbar = () => {
             })}
           </div>
 
-          {/* User Profile & Mobile Menu */}
+          {/* User Profile & Actions */}
           <div className="flex items-center space-x-4">
+            {/* Logout Button - Desktop */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => signOut()}
+              className="hidden md:flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+            >
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </Button>
+
             {/* User Avatar */}
             <div className="flex items-center space-x-3">
               <div className="hidden sm:block text-right">
