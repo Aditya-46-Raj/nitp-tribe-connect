@@ -48,7 +48,6 @@ const AppRoutes = () => {
   return (
     <Router>
       <div className="min-h-screen bg-background">
-        <Navbar />
         <Routes>
           <Route 
             path="/auth" 
