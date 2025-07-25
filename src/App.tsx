@@ -1,10 +1,8 @@
-import { useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
@@ -12,54 +10,124 @@ import PostEditor from "./pages/PostEditor";
 import Opportunities from "./pages/Opportunities";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
+import Navbar from "./components/Navbar";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const [user, setUser] = useState<any>(null);
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
-  const handleLogin = (email: string) => {
-    // Mock user creation based on email
-    const mockUser = {
-      name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-      email,
-      role: email.includes('admin') ? 'admin' : email.includes('faculty') ? 'contributor' : 'user',
-      avatar: "",
-      badge: email.includes('admin') ? 'Admin' : 'Member'
-    };
-    setUser(mockUser);
-  };
+const AppRoutes = () => {
+  const { user, loading } = useAuth();
 
-  const handleLogout = () => {
-    setUser(null);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
+  return (
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Routes>
+          <Route 
+            path="/auth" 
+            element={user ? <Navigate to="/" replace /> : <Auth />} 
+          />
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/post/new" 
+            element={
+              <ProtectedRoute>
+                <PostEditor />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/opportunities" 
+            element={
+              <ProtectedRoute>
+                <Opportunities />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/leaderboard" 
+            element={
+              <ProtectedRoute>
+                <Leaderboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/community" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+};
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {!user ? (
-              <Route path="*" element={<Login onLogin={handleLogin} />} />
-            ) : (
-              <>
-                <Route path="/" element={<Home />} />
-                <Route path="/profile" element={<Profile user={user} />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/post/new" element={<PostEditor />} />
-                <Route path="/opportunities" element={<Opportunities />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/community" element={<Home />} />
-                <Route path="*" element={<NotFound />} />
-              </>
-            )}
-          </Routes>
-        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
