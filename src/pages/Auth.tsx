@@ -62,11 +62,6 @@ const Auth = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return;
-    }
-
     if (!name.trim()) {
       setError("Name is required.");
       return;
@@ -74,14 +69,13 @@ const Auth = () => {
 
     setIsLoading(true);
     
-    const { error } = await signUp(email, password, name);
+    const { error } = await signUp(email, "", name);
     
     if (error) {
       setError(error.message);
     } else {
       setError("");
-      // Show success message or redirect
-      alert("Sign up successful! Please check your email to confirm your account.");
+      alert("Check your email for a magic link to sign in!");
     }
     
     setIsLoading(false);

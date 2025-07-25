@@ -10,6 +10,7 @@ import PostEditor from "./pages/PostEditor";
 import Opportunities from "./pages/Opportunities";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
+import Navbar from "./components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
@@ -47,6 +48,7 @@ const AppRoutes = () => {
   return (
     <Router>
       <div className="min-h-screen bg-background">
+        <Navbar />
         <Routes>
           <Route 
             path="/auth" 
