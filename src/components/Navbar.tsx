@@ -15,20 +15,12 @@ import {
   Trophy
 } from "lucide-react";
 import nitpLogo from "@/assets/nitp-tribe-logo.png";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface NavbarProps {
-  user?: {
-    name: string;
-    email: string;
-    role: 'admin' | 'contributor' | 'user';
-    avatar?: string;
-    badge?: string;
-  };
-}
-
-const Navbar = ({ user }: NavbarProps) => {
+const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { profile, signOut } = useAuth();
 
   const navItems = [
     { name: "Home", path: "/", icon: Home, roles: ['admin', 'contributor', 'user'] },
@@ -40,12 +32,12 @@ const Navbar = ({ user }: NavbarProps) => {
   ];
 
   const visibleNavItems = navItems.filter(item => 
-    user && item.roles.includes(user.role)
+    profile && item.roles.includes(profile.role)
   );
 
   const isActive = (path: string) => location.pathname === path;
 
-  if (!user) return null;
+  if (!profile) return null;
 
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
@@ -86,22 +78,22 @@ const Navbar = ({ user }: NavbarProps) => {
             {/* User Avatar */}
             <div className="flex items-center space-x-3">
               <div className="hidden sm:block text-right">
-                <p className="text-sm font-medium text-foreground">{user.name}</p>
+                <p className="text-sm font-medium text-foreground">{profile.name}</p>
                 <div className="flex items-center space-x-2">
-                  <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
-                    {user.role}
+                  <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
+                    {profile.role}
                   </Badge>
-                  {user.badge && (
+                  {profile.batch && (
                     <Badge variant="outline" className="text-xs">
-                      {user.badge}
+                      {profile.batch}
                     </Badge>
                   )}
                 </div>
               </div>
               <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={profile.avatar_url || undefined} alt={profile.name} />
                 <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
-                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -141,7 +133,10 @@ const Navbar = ({ user }: NavbarProps) => {
                 );
               })}
               <div className="border-t border-border pt-2 mt-2">
-                <button className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full">
+                <button 
+                  className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full"
+                  onClick={() => signOut()}
+                >
                   <LogOut size={18} />
                   <span>Sign Out</span>
                 </button>
