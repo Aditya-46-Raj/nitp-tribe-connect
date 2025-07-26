@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +13,8 @@ import {
   MoreHorizontal,
   Clock,
   ThumbsUp,
-  Bookmark
+  Bookmark,
+  ExternalLink
 } from "lucide-react";
 
 interface Post {
@@ -43,6 +47,30 @@ const PostCard = ({ post, onLike, onComment, onBookmark }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked || false);
   const [likesCount, setLikesCount] = useState(post.likes);
+
+  // Helper function to truncate markdown content
+  const getPreviewContent = (content: string, maxLength: number = 200) => {
+    // Remove markdown formatting for preview
+    const plainText = content
+      .replace(/#+\s/g, '') // Remove headers
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+      .replace(/\*(.*?)\*/g, '$1') // Remove italic
+      .replace(/`(.*?)`/g, '$1') // Remove inline code
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links
+      .replace(/```[\s\S]*?```/g, '[Code Block]') // Replace code blocks
+      .replace(/>\s/g, '') // Remove blockquotes
+      .replace(/[-*+]\s/g, '') // Remove list markers
+      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .trim();
+
+    if (plainText.length <= maxLength) return content;
+    
+    const truncated = plainText.substring(0, maxLength).trim();
+    const lastSpace = truncated.lastIndexOf(' ');
+    return truncated.substring(0, lastSpace) + '...';
+  };
+
+  const previewContent = getPreviewContent(post.content);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -116,11 +144,63 @@ const PostCard = ({ post, onLike, onComment, onBookmark }: PostCardProps) => {
 
       <CardContent className="pt-0">
         <div className="space-y-3">
-          <h3 className="font-semibold text-lg text-foreground leading-tight">{post.title}</h3>
+          <Link to={`/post/${post.id}`} className="block hover:opacity-80 transition-opacity">
+            <h3 className="font-semibold text-lg text-foreground leading-tight hover:text-primary">
+              {post.title}
+            </h3>
+          </Link>
           
-          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-            {post.content}
-          </p>
+          {/* Markdown Preview */}
+          <div className="text-muted-foreground text-sm leading-relaxed">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({ children }) => <p className="font-semibold text-foreground">{children}</p>,
+                h2: ({ children }) => <p className="font-medium text-foreground">{children}</p>,
+                h3: ({ children }) => <p className="font-medium text-foreground">{children}</p>,
+                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                em: ({ children }) => <em className="italic">{children}</em>,
+                code: ({ children }) => (
+                  <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">
+                    {children}
+                  </code>
+                ),
+                pre: ({ children }) => (
+                  <div className="bg-muted p-2 rounded text-xs font-mono overflow-hidden">
+                    {children}
+                  </div>
+                ),
+                ul: ({ children }) => <ul className="list-disc list-inside space-y-1">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal list-inside space-y-1">{children}</ol>,
+                li: ({ children }) => <li>{children}</li>,
+                blockquote: ({ children }) => (
+                  <blockquote className="border-l-2 border-primary/50 pl-2 italic text-muted-foreground">
+                    {children}
+                  </blockquote>
+                ),
+                a: ({ children, href }) => (
+                  <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                    {children}
+                  </a>
+                ),
+                table: () => <div className="text-xs text-muted-foreground">[Table content available in full post]</div>,
+              }}
+            >
+              {previewContent}
+            </ReactMarkdown>
+            
+            {/* Read More Button */}
+            {post.content.length > 200 && (
+              <Link 
+                to={`/post/${post.id}`} 
+                className="inline-flex items-center space-x-1 text-primary hover:text-primary/80 text-xs font-medium mt-2"
+              >
+                <span>Read more</span>
+                <ExternalLink size={12} />
+              </Link>
+            )}
+          </div>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">

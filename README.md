@@ -21,27 +21,31 @@ NITP Tribe Connect is a community platform designed specifically for students of
 
 ### Installation
 
-1. Clone the repository:
+Clone the repository:
+
 ```bash
 git clone https://github.com/Aditya-46-Raj/nitp-tribe-connect.git
 ```
 
-2. Navigate to the project directory:
+Navigate to the project directory:
+
 ```bash
 cd nitp-tribe-connect
 ```
 
-3. Install dependencies:
+Install dependencies:
+
 ```bash
 npm install
 ```
 
-4. Start the development server:
+Start the development server:
+
 ```bash
 npm run dev
 ```
 
-5. Open your browser and visit `http://localhost:5173`
+Open your browser and visit `http://localhost:5173`
 
 ## Technologies Used
 

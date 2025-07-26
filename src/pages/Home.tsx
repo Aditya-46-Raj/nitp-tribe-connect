@@ -43,14 +43,28 @@ const mockPosts: Post[] = [
   {
     id: "1",
     title: "Seeking Team for Hackathon at IIT Delhi",
-    content: "Looking for passionate developers to join our team for the upcoming hackathon. We're building an AI-powered solution for sustainable agriculture. Skills needed: React, Python, ML basics.",
+    content: `# Hackathon Team Formation
+
+Looking for passionate developers to join our team for the upcoming **Smart India Hackathon** at IIT Delhi.
+
+## About the Hackathon
+- **Date**: March 15-17, 2024
+- **Theme**: AI-powered solutions for sustainable agriculture
+- **Prize Pool**: ₹10 Lakhs
+
+## Skills We Need
+- **Frontend Developer**: React, TypeScript experience
+- **Backend Developer**: Python, FastAPI knowledge
+- **ML Engineer**: Computer Vision, TensorFlow
+
+Feel free to reach out if you have any questions!`,
     author: {
       name: "Priya Sharma",
       email: "priya.sharma@nitp.ac.in",
       role: 'contributor' as const,
       badge: "AI Enthusiast"
     },
-    tags: ["opportunity", "hackathon", "team"],
+    tags: ["opportunity", "hackathon", "team", "ai"],
     createdAt: "2024-01-20T10:30:00Z",
     likes: 24,
     comments: 8,
@@ -60,7 +74,31 @@ const mockPosts: Post[] = [
   {
     id: "2",
     title: "Google Summer of Code Applications Open",
-    content: "GSoC 2024 applications are now open! I've compiled a list of beginner-friendly organizations and projects. Happy to help anyone with proposal reviews and tips.",
+    content: `# Google Summer of Code 2024 🚀
+
+Great news everyone! **GSoC 2024** applications are now open and I've compiled a comprehensive guide to help you succeed.
+
+## Important Dates
+| Event | Date |
+|-------|------|
+| Application Opens | February 1, 2024 |
+| Application Deadline | March 18, 2024 |
+| Results Announced | May 1, 2024 |
+
+## Beginner-Friendly Organizations
+
+### 1. **Mozilla**
+- **Projects**: Firefox, Thunderbird, Developer Tools
+- **Languages**: JavaScript, C++, Python
+
+### 2. **Apache Software Foundation**
+- **Projects**: Kafka, Spark, Airflow
+- **Languages**: Java, Scala, Python
+
+## Free Proposal Review Service 🎯
+I'm offering **FREE proposal reviews** for NITP students!
+
+> **Note**: I was a GSoC participant in 2023 with the Apache Software Foundation and would love to help others succeed!`,
     author: {
       name: "Amit Singh",
       email: "amit.singh@nitp.ac.in",
@@ -77,7 +115,30 @@ const mockPosts: Post[] = [
   {
     id: "3",
     title: "Help with Data Structures Assignment",
-    content: "Struggling with the tree traversal problem in DSA assignment. Can someone explain the approach for level-order traversal using queue? I understand the concept but implementation is confusing.",
+    content: `# Tree Traversal Problem Help Needed
+
+Struggling with the tree traversal problem in **DSA assignment**. Can someone explain the approach for level-order traversal using queue?
+
+## What I Understand
+- Binary tree structure
+- Queue data structure basics
+- BFS concept
+
+## Where I'm Stuck
+I understand the concept but implementation is confusing, especially:
+1. How to track levels
+2. When to add null markers
+3. Processing logic
+
+\`\`\`python
+# My current attempt
+def level_order(root):
+    if not root:
+        return []
+    # Need help from here...
+\`\`\`
+
+Any help would be appreciated! Assignment due tomorrow 😅`,
     author: {
       name: "Sneha Gupta",
       email: "sneha.gupta@nitp.ac.in",
@@ -94,7 +155,37 @@ const mockPosts: Post[] = [
   {
     id: "4",
     title: "Open Source Project: NITP Course Planner",
-    content: "Started working on a course planning tool for NITP students. It will help track credits, prerequisites, and plan semesters efficiently. Looking for contributors! Tech stack: React, Node.js, MongoDB.",
+    content: `# NITP Course Planner 📚
+
+Started working on a course planning tool for **NITP students**. This will help track credits, prerequisites, and plan semesters efficiently.
+
+## Features
+- ✅ Credit tracking
+- ✅ Prerequisite management
+- ✅ Semester planning
+- ✅ GPA calculator
+- 🔄 Course recommendations (in progress)
+
+## Tech Stack
+- **Frontend**: React.js, TypeScript
+- **Backend**: Node.js, Express
+- **Database**: MongoDB
+- **Deployment**: AWS
+
+## Looking for Contributors!
+We need help with:
+1. **UI/UX Design** - Making it more intuitive
+2. **Backend Development** - API optimization
+3. **Testing** - Unit and integration tests
+
+\`\`\`bash
+# Quick start
+git clone https://github.com/user/nitp-course-planner
+cd nitp-course-planner
+npm install && npm start
+\`\`\`
+
+Interested? Drop a comment below! 🚀`,
     author: {
       name: "Vikash Raj",
       email: "vikash.raj@nitp.ac.in",
@@ -111,7 +202,42 @@ const mockPosts: Post[] = [
   {
     id: "5",
     title: "Placement Drive: Amazon, Google, Microsoft",
-    content: "Upcoming placement drives at NITP! Amazon, Google, and Microsoft are visiting campus next month. Make sure to prepare your resumes and practice coding problems. Drop me a message if you need help with preparation.",
+    content: `# Major Placement Drive Alert! 🎯
+
+Upcoming placement drives at **NITP**! Some of the biggest tech companies are visiting campus next month.
+
+## Companies Visiting
+- **Amazon** - SDE roles (₹28-45 LPA)
+- **Google** - Software Engineer (₹35-60 LPA)  
+- **Microsoft** - SDE-1 (₹25-42 LPA)
+
+## Preparation Timeline
+### Week 1: DSA Revision
+- Arrays, Strings, Linked Lists
+- Trees and Graphs
+- Dynamic Programming
+
+### Week 2: System Design
+- Scalability concepts
+- Database design
+- API design
+
+### Week 3: Mock Interviews
+- Technical rounds
+- HR preparation
+- Resume review
+
+## Resources
+- [LeetCode Problems](https://leetcode.com)
+- [System Design Primer](https://github.com/donnemartin/system-design-primer)
+- [Resume Templates](https://example.com)
+
+> **Pro Tip**: Practice coding problems daily and focus on explaining your thought process clearly.
+
+Need help with preparation? **Drop me a message!** I'm happy to help with resume reviews and mock interviews.
+
+**Registration deadline**: February 15th
+**Placement dates**: March 1-15, 2024`,
     author: {
       name: "Rajesh Kumar",
       email: "rajesh.kumar@nitp.ac.in",
@@ -128,7 +254,50 @@ const mockPosts: Post[] = [
   {
     id: "6",
     title: "Summer Internship Opportunities 2024",
-    content: "Compiled a list of summer internship opportunities for 2024. Includes positions at startups, MNCs, and research organizations. Application deadlines are approaching fast!",
+    content: `# Summer Internship Guide 2024 ☀️
+
+Compiled a comprehensive list of **summer internship opportunities** for 2024. Application deadlines are approaching fast!
+
+## Startup Internships
+### Tech Startups
+- **Zomato** - Product Manager Intern
+- **Paytm** - Software Developer Intern  
+- **Ola** - Data Science Intern
+
+## MNC Opportunities
+### Product Companies
+- **Flipkart** - SDE Intern (₹50k/month)
+- **Swiggy** - Backend Developer (₹45k/month)
+- **Uber** - Mobile Developer (₹60k/month)
+
+## Research Organizations
+- **ISRO** - Space Technology
+- **DRDO** - Defense Research
+- **IITs** - Various domains
+
+## Application Tips
+1. **Tailor your resume** for each application
+2. **Highlight relevant projects** and skills
+3. **Practice coding** for technical interviews
+4. **Prepare behavioral** questions
+
+\`\`\`markdown
+## Sample Application Timeline
+- January: Research and shortlist companies
+- February: Apply to first batch
+- March: Interview preparation
+- April: Final interviews
+- May: Internship begins!
+\`\`\`
+
+## Important Deadlines
+| Company | Application Deadline | Interview Dates |
+|---------|---------------------|----------------|
+| Flipkart | Feb 15, 2024 | Mar 1-15 |
+| Google | Feb 20, 2024 | Mar 10-25 |
+| Microsoft | Feb 25, 2024 | Mar 15-30 |
+
+**Good luck everyone!** 🍀`,
     author: {
       name: "Neha Agarwal",
       email: "neha.agarwal@nitp.ac.in",
@@ -145,7 +314,58 @@ const mockPosts: Post[] = [
   {
     id: "7",
     title: "TechFest 2024 Hackathon Registration Open",
-    content: "NITP TechFest 2024 hackathon registration is now open! 48-hour coding challenge with exciting prizes. Team size: 2-4 members. Topics include AI/ML, Web Development, Mobile Apps, and IoT.",
+    content: `# NITP TechFest 2024 Hackathon 🎪
+
+**NITP TechFest 2024** hackathon registration is now open! Get ready for a **48-hour coding challenge** with exciting prizes.
+
+## Event Details
+- **Duration**: 48 hours non-stop coding
+- **Team Size**: 2-4 members
+- **Prize Pool**: ₹2 Lakhs
+- **Registration Fee**: ₹500 per team
+
+## Themes
+### 1. AI/ML Track
+- Computer Vision applications
+- Natural Language Processing
+- Predictive Analytics
+
+### 2. Web Development
+- Full-stack applications
+- Progressive Web Apps
+- E-commerce solutions
+
+### 3. Mobile Apps
+- Native Android/iOS
+- Cross-platform solutions
+- AR/VR applications
+
+### 4. IoT & Hardware
+- Smart home automation
+- Environmental monitoring
+- Healthcare devices
+
+## Prizes & Rewards
+- **1st Place**: ₹75,000 + Internship offers
+- **2nd Place**: ₹50,000 + Goodies
+- **3rd Place**: ₹25,000 + Certificates
+- **Special Tracks**: ₹10,000 each
+
+## What's Provided
+- ☕ **Food & Beverages** throughout
+- 🏨 **Accommodation** for outstation teams
+- 💻 **WiFi & Power** backup
+- 🏥 **Medical** assistance
+- 🎮 **Gaming zone** for breaks
+
+\`\`\`bash
+# Registration Command (Just kidding! 😄)
+curl -X POST https://techfest.nitp.ac.in/register \\
+  --data "team_name=AwesomeTeam&members=4"
+\`\`\`
+
+**Register now**: [TechFest Portal](https://techfest.nitp.ac.in)
+**Last date**: February 10, 2024`,
     author: {
       name: "Ankit Sharma",
       email: "ankit.sharma@nitp.ac.in",

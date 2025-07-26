@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import PostEditor from "./pages/PostEditor";
+import PostDetail from "./pages/PostDetail";
 import Opportunities from "./pages/Opportunities";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
@@ -75,6 +76,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <Admin />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/post/:id" 
+            element={
+              <ProtectedRoute>
+                <PostDetail />
               </ProtectedRoute>
             } 
           />
