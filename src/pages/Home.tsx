@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -167,6 +167,20 @@ const Home = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [posts, setPosts] = useState(mockPosts);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Listen for mobile menu toggle events
+  useEffect(() => {
+    const handleMenuToggle = (event: CustomEvent) => {
+      setIsMobileMenuOpen(event.detail.isOpen);
+    };
+
+    window.addEventListener('mobileMenuToggle', handleMenuToggle as EventListener);
+    
+    return () => {
+      window.removeEventListener('mobileMenuToggle', handleMenuToggle as EventListener);
+    };
+  }, []);
   
   // Create post form state
   const [newPost, setNewPost] = useState({
@@ -244,7 +258,12 @@ const Home = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div 
+        className={`transition-transform duration-300 ease-out md:transform-none ${
+          isMobileMenuOpen ? 'transform translate-x-80' : 'transform translate-x-0'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
@@ -524,6 +543,7 @@ const Home = () => {
             </Card>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

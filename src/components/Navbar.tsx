@@ -31,6 +31,25 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
 
+  // Handle mobile menu toggle
+  const toggleMobileMenu = () => {
+    const newState = !isMobileMenuOpen;
+    setIsMobileMenuOpen(newState);
+    
+    // Dispatch custom event for layout components to listen to
+    window.dispatchEvent(new CustomEvent('mobileMenuToggle', { 
+      detail: { isOpen: newState } 
+    }));
+  };
+
+  // Close mobile menu when clicking outside
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    window.dispatchEvent(new CustomEvent('mobileMenuToggle', { 
+      detail: { isOpen: false } 
+    }));
+  };
+
   const navItems = [
     { name: "Home", path: "/", icon: Home, roles: ['admin', 'contributor', 'user'] },
     { name: "Community", path: "/community", icon: Users, roles: ['admin', 'contributor', 'user'] },
@@ -48,9 +67,119 @@ const Navbar = () => {
   if (!profile) return null;
 
   return (
-    <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <>
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          {/* Blurred Background */}
+          <div 
+            className="absolute inset-0 bg-background/80 backdrop-blur-md transition-opacity duration-300"
+            onClick={closeMobileMenu}
+          />
+          
+          {/* Slide-in Menu */}
+          <div className="absolute left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl transform transition-transform duration-300 ease-out">
+            <div className="flex flex-col h-full">
+              {/* Menu Header */}
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <div className="flex items-center space-x-3">
+                  <img src={nitpLogo} alt="NITP Tribe" className="h-8 w-8" />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-lg text-foreground">NITP Tribe</span>
+                    <span className="text-xs text-muted-foreground">Connect. Collaborate. Grow.</span>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={closeMobileMenu}
+                  className="h-8 w-8"
+                >
+                  <X size={20} />
+                </Button>
+              </div>
+              
+              {/* User Profile Section */}
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage 
+                      src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
+                      alt={profile.name} 
+                    />
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">{profile.name}</p>
+                    <p className="text-sm text-muted-foreground">{profile.email}</p>
+                    <Badge variant="secondary" className="text-xs mt-1">
+                      {profile.batch}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Navigation Items */}
+              <div className="flex-1 py-4">
+                {visibleNavItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`flex items-center space-x-3 px-6 py-4 text-base font-medium transition-colors ${
+                        isActive(item.path)
+                          ? "bg-primary text-primary-foreground border-r-4 border-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      }`}
+                      onClick={closeMobileMenu}
+                    >
+                      <Icon size={20} />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              
+              {/* Bottom Actions */}
+              <div className="border-t border-border p-4 space-y-2">
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-3 px-2 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                  onClick={closeMobileMenu}
+                >
+                  <User size={18} />
+                  <span>Profile</span>
+                </Link>
+                <Link
+                  to="/settings"
+                  className="flex items-center space-x-3 px-2 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                  onClick={closeMobileMenu}
+                >
+                  <Settings size={18} />
+                  <span>Settings</span>
+                </Link>
+                <button 
+                  className="flex items-center space-x-3 px-2 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-md transition-colors w-full"
+                  onClick={() => {
+                    closeMobileMenu();
+                    signOut();
+                  }}
+                >
+                  <LogOut size={18} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <img src={nitpLogo} alt="NITP Tribe" className="h-8 w-8" />
@@ -130,49 +259,15 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
           </div>
         </div>
-
-        {/* Mobile Navigation Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card">
-            <div className="py-4 space-y-2">
-              {visibleNavItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors ${
-                      isActive(item.path)
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Icon size={18} />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-              <div className="border-t border-border pt-2 mt-2">
-                <button 
-                  className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent w-full"
-                  onClick={() => signOut()}
-                >
-                  <LogOut size={18} />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
+        </div>
+      </nav>
+    </>
   );
 };
 
