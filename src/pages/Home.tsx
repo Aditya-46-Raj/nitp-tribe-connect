@@ -1,392 +1,135 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import PostCard from "@/components/PostCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
+import heroBanner from "@/assets/hero-banner.jpg";
 import { 
-  Search, 
-  Plus, 
-  Filter,
-  TrendingUp,
-  Users,
+  Users, 
   Calendar,
+  BookOpen,
+  Trophy,
+  TrendingUp,
+  MessageCircle,
+  Bell,
+  ArrowRight,
   Star,
-  X
+  Clock,
+  MapPin,
+  Code,
+  Briefcase,
+  Zap,
+  Target,
+  Globe
 } from "lucide-react";
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  author: {
-    name: string;
-    email: string;
-    role: 'admin' | 'contributor' | 'user';
-    badge: string;
-  };
-  tags: string[];
-  createdAt: string;
-  likes: number;
-  comments: number;
-  isLiked: boolean;
-  isBookmarked: boolean;
-}
+// Quick stats data
+const communityStats = {
+  totalMembers: 1247,
+  activeToday: 89,
+  postsThisWeek: 156,
+  eventsThisMonth: 12
+};
 
-const mockPosts: Post[] = [
+// Recent activities data
+const recentActivities = [
   {
-    id: "1",
-    title: "Seeking Team for Hackathon at IIT Delhi",
-    content: `# Hackathon Team Formation
-
-Looking for passionate developers to join our team for the upcoming **Smart India Hackathon** at IIT Delhi.
-
-## About the Hackathon
-- **Date**: March 15-17, 2024
-- **Theme**: AI-powered solutions for sustainable agriculture
-- **Prize Pool**: ₹10 Lakhs
-
-## Skills We Need
-- **Frontend Developer**: React, TypeScript experience
-- **Backend Developer**: Python, FastAPI knowledge
-- **ML Engineer**: Computer Vision, TensorFlow
-
-Feel free to reach out if you have any questions!`,
-    author: {
-      name: "Priya Sharma",
-      email: "priya.sharma@nitp.ac.in",
-      role: 'contributor' as const,
-      badge: "AI Enthusiast"
-    },
-    tags: ["opportunity", "hackathon", "team", "ai"],
-    createdAt: "2024-01-20T10:30:00Z",
-    likes: 24,
-    comments: 8,
-    isLiked: false,
-    isBookmarked: true
+    id: 1,
+    type: "post",
+    user: "Priya Sharma",
+    action: "created a new post about",
+    content: "Hackathon Team Formation",
+    time: "2 hours ago",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=40&h=40&fit=crop&crop=face"
   },
   {
-    id: "2",
-    title: "Google Summer of Code Applications Open",
-    content: `# Google Summer of Code 2024 🚀
-
-Great news everyone! **GSoC 2024** applications are now open and I've compiled a comprehensive guide to help you succeed.
-
-## Important Dates
-| Event | Date |
-|-------|------|
-| Application Opens | February 1, 2024 |
-| Application Deadline | March 18, 2024 |
-| Results Announced | May 1, 2024 |
-
-## Beginner-Friendly Organizations
-
-### 1. **Mozilla**
-- **Projects**: Firefox, Thunderbird, Developer Tools
-- **Languages**: JavaScript, C++, Python
-
-### 2. **Apache Software Foundation**
-- **Projects**: Kafka, Spark, Airflow
-- **Languages**: Java, Scala, Python
-
-## Free Proposal Review Service 🎯
-I'm offering **FREE proposal reviews** for NITP students!
-
-> **Note**: I was a GSoC participant in 2023 with the Apache Software Foundation and would love to help others succeed!`,
-    author: {
-      name: "Amit Singh",
-      email: "amit.singh@nitp.ac.in",
-      role: 'admin' as const,
-      badge: "Mentor"
-    },
-    tags: ["opportunity", "gsoc", "internship"],
-    createdAt: "2024-01-19T15:45:00Z",
-    likes: 56,
-    comments: 15,
-    isLiked: true,
-    isBookmarked: false
+    id: 2,
+    type: "event",
+    user: "Amit Singh",
+    action: "registered for",
+    content: "Google Summer of Code 2024",
+    time: "4 hours ago",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
   },
   {
-    id: "3",
-    title: "Help with Data Structures Assignment",
-    content: `# Tree Traversal Problem Help Needed
+    id: 3,
+    type: "achievement",
+    user: "Vikash Raj",
+    action: "completed",
+    content: "Open Source Contribution Challenge",
+    time: "6 hours ago",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face"
+  }
+];
 
-Struggling with the tree traversal problem in **DSA assignment**. Can someone explain the approach for level-order traversal using queue?
-
-## What I Understand
-- Binary tree structure
-- Queue data structure basics
-- BFS concept
-
-## Where I'm Stuck
-I understand the concept but implementation is confusing, especially:
-1. How to track levels
-2. When to add null markers
-3. Processing logic
-
-\`\`\`python
-# My current attempt
-def level_order(root):
-    if not root:
-        return []
-    # Need help from here...
-\`\`\`
-
-Any help would be appreciated! Assignment due tomorrow 😅`,
-    author: {
-      name: "Sneha Gupta",
-      email: "sneha.gupta@nitp.ac.in",
-      role: 'user' as const,
-      badge: "First Year"
-    },
-    tags: ["help", "dsa", "assignment"],
-    createdAt: "2024-01-19T09:20:00Z",
-    likes: 12,
-    comments: 6,
-    isLiked: false,
-    isBookmarked: false
+// Upcoming events
+const upcomingEvents = [
+  {
+    id: 1,
+    title: "TechFest 2024 Hackathon",
+    date: "March 15-17, 2024",
+    time: "9:00 AM",
+    location: "Main Auditorium",
+    participants: 234,
+    type: "Competition"
   },
   {
-    id: "4",
-    title: "Open Source Project: NITP Course Planner",
-    content: `# NITP Course Planner 📚
-
-Started working on a course planning tool for **NITP students**. This will help track credits, prerequisites, and plan semesters efficiently.
-
-## Features
-- ✅ Credit tracking
-- ✅ Prerequisite management
-- ✅ Semester planning
-- ✅ GPA calculator
-- 🔄 Course recommendations (in progress)
-
-## Tech Stack
-- **Frontend**: React.js, TypeScript
-- **Backend**: Node.js, Express
-- **Database**: MongoDB
-- **Deployment**: AWS
-
-## Looking for Contributors!
-We need help with:
-1. **UI/UX Design** - Making it more intuitive
-2. **Backend Development** - API optimization
-3. **Testing** - Unit and integration tests
-
-\`\`\`bash
-# Quick start
-git clone https://github.com/user/nitp-course-planner
-cd nitp-course-planner
-npm install && npm start
-\`\`\`
-
-Interested? Drop a comment below! 🚀`,
-    author: {
-      name: "Vikash Raj",
-      email: "vikash.raj@nitp.ac.in",
-      role: 'contributor' as const,
-      badge: "Open Source"
-    },
-    tags: ["project", "open-source", "nitp"],
-    createdAt: "2024-01-18T20:15:00Z",
-    likes: 35,
-    comments: 12,
-    isLiked: true,
-    isBookmarked: true
+    id: 2,
+    title: "Placement Drive - Amazon",
+    date: "March 20, 2024",
+    time: "10:00 AM",
+    location: "Placement Cell",
+    participants: 89,
+    type: "Career"
   },
   {
-    id: "5",
-    title: "Placement Drive: Amazon, Google, Microsoft",
-    content: `# Major Placement Drive Alert! 🎯
+    id: 3,
+    title: "AI/ML Workshop",
+    date: "March 25, 2024",
+    time: "2:00 PM",
+    location: "Computer Lab 1",
+    participants: 156,
+    type: "Workshop"
+  }
+];
 
-Upcoming placement drives at **NITP**! Some of the biggest tech companies are visiting campus next month.
-
-## Companies Visiting
-- **Amazon** - SDE roles (₹28-45 LPA)
-- **Google** - Software Engineer (₹35-60 LPA)  
-- **Microsoft** - SDE-1 (₹25-42 LPA)
-
-## Preparation Timeline
-### Week 1: DSA Revision
-- Arrays, Strings, Linked Lists
-- Trees and Graphs
-- Dynamic Programming
-
-### Week 2: System Design
-- Scalability concepts
-- Database design
-- API design
-
-### Week 3: Mock Interviews
-- Technical rounds
-- HR preparation
-- Resume review
-
-## Resources
-- [LeetCode Problems](https://leetcode.com)
-- [System Design Primer](https://github.com/donnemartin/system-design-primer)
-- [Resume Templates](https://example.com)
-
-> **Pro Tip**: Practice coding problems daily and focus on explaining your thought process clearly.
-
-Need help with preparation? **Drop me a message!** I'm happy to help with resume reviews and mock interviews.
-
-**Registration deadline**: February 15th
-**Placement dates**: March 1-15, 2024`,
-    author: {
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@nitp.ac.in",
-      role: 'admin' as const,
-      badge: "Placement Cell"
-    },
-    tags: ["placement", "opportunity", "career"],
-    createdAt: "2024-01-17T14:30:00Z",
-    likes: 89,
-    comments: 25,
-    isLiked: false,
-    isBookmarked: true
+// Featured opportunities
+const featuredOpportunities = [
+  {
+    id: 1,
+    title: "Google Summer of Code 2024",
+    description: "Applications now open for GSoC 2024",
+    deadline: "March 18, 2024",
+    applicants: 45,
+    difficulty: "Intermediate",
+    type: "Internship"
   },
   {
-    id: "6",
-    title: "Summer Internship Opportunities 2024",
-    content: `# Summer Internship Guide 2024 ☀️
-
-Compiled a comprehensive list of **summer internship opportunities** for 2024. Application deadlines are approaching fast!
-
-## Startup Internships
-### Tech Startups
-- **Zomato** - Product Manager Intern
-- **Paytm** - Software Developer Intern  
-- **Ola** - Data Science Intern
-
-## MNC Opportunities
-### Product Companies
-- **Flipkart** - SDE Intern (₹50k/month)
-- **Swiggy** - Backend Developer (₹45k/month)
-- **Uber** - Mobile Developer (₹60k/month)
-
-## Research Organizations
-- **ISRO** - Space Technology
-- **DRDO** - Defense Research
-- **IITs** - Various domains
-
-## Application Tips
-1. **Tailor your resume** for each application
-2. **Highlight relevant projects** and skills
-3. **Practice coding** for technical interviews
-4. **Prepare behavioral** questions
-
-\`\`\`markdown
-## Sample Application Timeline
-- January: Research and shortlist companies
-- February: Apply to first batch
-- March: Interview preparation
-- April: Final interviews
-- May: Internship begins!
-\`\`\`
-
-## Important Deadlines
-| Company | Application Deadline | Interview Dates |
-|---------|---------------------|----------------|
-| Flipkart | Feb 15, 2024 | Mar 1-15 |
-| Google | Feb 20, 2024 | Mar 10-25 |
-| Microsoft | Feb 25, 2024 | Mar 15-30 |
-
-**Good luck everyone!** 🍀`,
-    author: {
-      name: "Neha Agarwal",
-      email: "neha.agarwal@nitp.ac.in",
-      role: 'contributor' as const,
-      badge: "Career Counselor"
-    },
-    tags: ["internship", "opportunity", "career"],
-    createdAt: "2024-01-16T11:20:00Z",
-    likes: 67,
-    comments: 18,
-    isLiked: true,
-    isBookmarked: false
+    id: 2,
+    title: "Microsoft Hackathon",
+    description: "Build solutions for accessibility",
+    deadline: "March 22, 2024",
+    applicants: 78,
+    difficulty: "Beginner",
+    type: "Competition"
   },
   {
-    id: "7",
-    title: "TechFest 2024 Hackathon Registration Open",
-    content: `# NITP TechFest 2024 Hackathon 🎪
-
-**NITP TechFest 2024** hackathon registration is now open! Get ready for a **48-hour coding challenge** with exciting prizes.
-
-## Event Details
-- **Duration**: 48 hours non-stop coding
-- **Team Size**: 2-4 members
-- **Prize Pool**: ₹2 Lakhs
-- **Registration Fee**: ₹500 per team
-
-## Themes
-### 1. AI/ML Track
-- Computer Vision applications
-- Natural Language Processing
-- Predictive Analytics
-
-### 2. Web Development
-- Full-stack applications
-- Progressive Web Apps
-- E-commerce solutions
-
-### 3. Mobile Apps
-- Native Android/iOS
-- Cross-platform solutions
-- AR/VR applications
-
-### 4. IoT & Hardware
-- Smart home automation
-- Environmental monitoring
-- Healthcare devices
-
-## Prizes & Rewards
-- **1st Place**: ₹75,000 + Internship offers
-- **2nd Place**: ₹50,000 + Goodies
-- **3rd Place**: ₹25,000 + Certificates
-- **Special Tracks**: ₹10,000 each
-
-## What's Provided
-- ☕ **Food & Beverages** throughout
-- 🏨 **Accommodation** for outstation teams
-- 💻 **WiFi & Power** backup
-- 🏥 **Medical** assistance
-- 🎮 **Gaming zone** for breaks
-
-\`\`\`bash
-# Registration Command (Just kidding! 😄)
-curl -X POST https://techfest.nitp.ac.in/register \\
-  --data "team_name=AwesomeTeam&members=4"
-\`\`\`
-
-**Register now**: [TechFest Portal](https://techfest.nitp.ac.in)
-**Last date**: February 10, 2024`,
-    author: {
-      name: "Ankit Sharma",
-      email: "ankit.sharma@nitp.ac.in",
-      role: 'user' as const,
-      badge: "Tech Committee"
-    },
-    tags: ["hackathon", "event", "competition"],
-    createdAt: "2024-01-15T09:45:00Z",
-    likes: 42,
-    comments: 11,
-    isLiked: false,
-    isBookmarked: true
+    id: 3,
+    title: "Research Assistant Position",
+    description: "AI Lab research opportunities",
+    deadline: "March 30, 2024",
+    applicants: 23,
+    difficulty: "Advanced",
+    type: "Research"
   }
 ];
 
 const Home = () => {
   const { profile } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [posts, setPosts] = useState(mockPosts);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Listen for mobile menu toggle events
@@ -401,77 +144,32 @@ const Home = () => {
       window.removeEventListener('mobileMenuToggle', handleMenuToggle as EventListener);
     };
   }, []);
-  
-  // Create post form state
-  const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    category: "",
-    tags: [] as string[]
-  });
-  const [newTag, setNewTag] = useState("");
 
-  const tags = ["opportunity", "help", "project", "announcement", "placement", "internship", "hackathon", "research", "startup", "mentorship"];
-  const categories = ["General", "Academic", "Career", "Technical", "Social"];
-  
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = searchQuery === "" || 
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesTag = selectedTag === null || post.tags.includes(selectedTag);
-    
-    return matchesSearch && matchesTag;
-  });
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
-  const handleAddTag = () => {
-    if (newTag.trim() && !newPost.tags.includes(newTag.trim())) {
-      setNewPost(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }));
-      setNewTag("");
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Beginner": return "bg-green-500";
+      case "Intermediate": return "bg-yellow-500";
+      case "Advanced": return "bg-red-500";
+      default: return "bg-gray-500";
     }
   };
 
-  const handleRemoveTag = (tagToRemove: string) => {
-    setNewPost(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  const handleCreatePost = () => {
-    if (!newPost.title.trim() || !newPost.content.trim()) return;
-    
-    const post = {
-      id: `${Date.now()}`,
-      title: newPost.title,
-      content: newPost.content,
-      author: {
-        name: profile?.name || "Anonymous User",
-        email: profile?.email || "user@example.com",
-        role: profile?.role || 'user' as const,
-        badge: profile?.batch || "Student"
-      },
-      tags: newPost.tags,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-      comments: 0,
-      isLiked: false,
-      isBookmarked: false
-    };
-
-    setPosts(prev => [post, ...prev]);
-    
-    // Reset form
-    setNewPost({
-      title: "",
-      content: "",
-      category: "",
-      tags: []
-    });
-    setIsCreateDialogOpen(false);
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "Competition": return Trophy;
+      case "Career": return Briefcase;
+      case "Workshop": return BookOpen;
+      case "Internship": return Code;
+      case "Research": return Globe;
+      default: return Calendar;
+    }
   };
 
   return (
@@ -483,287 +181,290 @@ const Home = () => {
           isMobileMenuOpen ? 'transform translate-x-80' : 'transform translate-x-0'
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Community Feed</h1>
-                <p className="text-muted-foreground">Stay connected with your NITP community</p>
+        {/* Hero Section */}
+        <div className="relative bg-gradient-hero overflow-hidden">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-30"
+            style={{ backgroundImage: `url(${heroBanner})` }}
+          ></div>
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center text-white space-y-6">
+              <h1 className="text-4xl md:text-6xl font-bold">
+                {getGreeting()}, {profile?.name?.split(' ')[0] || 'Student'}! 👋
+              </h1>
+              <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
+                Welcome to <strong>NITP Tribe Connect</strong> - Your gateway to opportunities, 
+                collaboration, and community growth at NIT Patna.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                <Button asChild className="h-12 px-8 text-lg bg-white text-primary hover:bg-white/90 hover:scale-105 hover:shadow-lg transition-all duration-300 ease-out">
+                  <Link to="/opportunities">
+                    <Target className="mr-2" size={20} />
+                    Explore Opportunities
+                  </Link>
+                </Button>
+                <Button asChild className="h-12 px-8 text-lg bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white hover:text-primary hover:scale-105 hover:shadow-lg transition-all duration-300 ease-out">
+                  <Link to="/community">
+                    <Users className="mr-2" size={20} />
+                    Join Community
+                  </Link>
+                </Button>
               </div>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="w-fit">
-                    <Plus size={16} />
-                    Create Post
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Create New Post</DialogTitle>
-                  </DialogHeader>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="title">Title</Label>
-                      <Input
-                        id="title"
-                        placeholder="Enter post title..."
-                        value={newPost.title}
-                        onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="category">Category</Label>
-                      <Select 
-                        value={newPost.category} 
-                        onValueChange={(value) => setNewPost(prev => ({ ...prev, category: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="content">Content</Label>
-                      <Textarea
-                        id="content"
-                        placeholder="What would you like to share with the community?"
-                        value={newPost.content}
-                        onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
-                        rows={6}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="tags">Tags</Label>
-                      <div className="flex gap-2 mb-2">
-                        <Input
-                          placeholder="Add a tag..."
-                          value={newTag}
-                          onChange={(e) => setNewTag(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                        />
-                        <Button type="button" onClick={handleAddTag}>
-                          Add
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {newPost.tags.map((tag) => (
-                          <Badge key={tag} className="flex items-center gap-1">
-                            #{tag}
-                            <X 
-                              size={12} 
-                              className="cursor-pointer hover:text-destructive" 
-                              onClick={() => handleRemoveTag(tag)}
-                            />
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end gap-2 pt-4">
-                      <Button 
-                        type="button" 
-                        onClick={() => setIsCreateDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        onClick={handleCreatePost}
-                        disabled={!newPost.title.trim() || !newPost.content.trim()}
-                      >
-                        Create Post
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
             </div>
-
-            {/* Search and Filters */}
-            <Card className="bg-gradient-card border-border/50">
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search posts, topics, or authors..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-background"
-                    />
-                  </div>
-                  <Button variant="outline" size="icon">
-                    <Filter size={16} />
-                  </Button>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-4">
-                  <Button
-                    variant={selectedTag === null ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedTag(null)}
-                  >
-                    All
-                  </Button>
-                  {tags.map((tag) => (
-                    <Button
-                      key={tag}
-                      variant={selectedTag === tag ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                    >
-                      #{tag}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Posts Feed */}
-            <div className="space-y-4">
-              {filteredPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-              
-              {filteredPosts.length === 0 && (
-                <Card className="text-center py-12">
-                  <CardContent>
-                    <div className="text-muted-foreground space-y-2">
-                      <p className="text-lg font-medium">No posts found</p>
-                      <p>Try adjusting your search or filters</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <Card className="bg-gradient-card border-border/50">
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-foreground mb-4">Community Stats</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Users size={16} className="text-primary" />
-                      <span className="text-sm text-muted-foreground">Active Members</span>
-                    </div>
-                    <span className="font-semibold text-foreground">1,247</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <TrendingUp size={16} className="text-success" />
-                      <span className="text-sm text-muted-foreground">Posts Today</span>
-                    </div>
-                    <span className="font-semibold text-foreground">23</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Calendar size={16} className="text-accent" />
-                      <span className="text-sm text-muted-foreground">Events This Week</span>
-                    </div>
-                    <span className="font-semibold text-foreground">5</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Trending Tags */}
-            <Card className="bg-gradient-card border-border/50">
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-foreground mb-4">Trending Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  <Badge 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => setSelectedTag(selectedTag === "placement" ? null : "placement")}
-                  >
-                    #placement
-                  </Badge>
-                  <Badge 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => setSelectedTag(selectedTag === "internship" ? null : "internship")}
-                  >
-                    #internship
-                  </Badge>
-                  <Badge 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => setSelectedTag(selectedTag === "hackathon" ? null : "hackathon")}
-                  >
-                    #hackathon
-                  </Badge>
-                  <Badge 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => setSelectedTag(selectedTag === "research" ? null : "research")}
-                  >
-                    #research
-                  </Badge>
-                  <Badge 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => setSelectedTag(selectedTag === "startup" ? null : "startup")}
-                  >
-                    #startup
-                  </Badge>
-                  <Badge 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => setSelectedTag(selectedTag === "mentorship" ? null : "mentorship")}
-                  >
-                    #mentorship
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Top Contributors */}
-            <Card className="bg-gradient-card border-border/50">
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-foreground mb-4">Top Contributors</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Amit Singh", badge: "Mentor", points: 580 },
-                    { name: "Priya Sharma", badge: "AI Enthusiast", points: 420 },
-                    { name: "Vikash Raj", badge: "Open Source", points: 380 }
-                  ].map((contributor, index) => (
-                    <div key={contributor.name} className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          index === 0 ? 'bg-accent text-accent-foreground' : 
-                          index === 1 ? 'bg-muted text-muted-foreground' : 
-                          'bg-success text-success-foreground'
-                        }`}>
-                          {index + 1}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{contributor.name}</p>
-                          <p className="text-xs text-muted-foreground">{contributor.badge}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1 ml-auto">
-                        <Star size={12} className="text-accent" />
-                        <span className="text-xs font-medium text-foreground">{contributor.points}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
-      </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <Card className="text-center bg-gradient-card border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-2">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{communityStats.totalMembers.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Community Members</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center bg-gradient-card border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-success/10 rounded-lg mx-auto mb-2">
+                  <TrendingUp className="w-6 h-6 text-success" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{communityStats.activeToday}</div>
+                <div className="text-sm text-muted-foreground">Active Today</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center bg-gradient-card border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-accent/10 rounded-lg mx-auto mb-2">
+                  <MessageCircle className="w-6 h-6 text-accent" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{communityStats.postsThisWeek}</div>
+                <div className="text-sm text-muted-foreground">Posts This Week</div>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center bg-gradient-card border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center w-12 h-12 bg-purple-500/10 rounded-lg mx-auto mb-2">
+                  <Calendar className="w-6 h-6 text-purple-500" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{communityStats.eventsThisMonth}</div>
+                <div className="text-sm text-muted-foreground">Events This Month</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Featured Opportunities */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Featured Opportunities */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-accent" />
+                    Featured Opportunities
+                  </CardTitle>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/opportunities">
+                      View All <ArrowRight className="ml-1 w-4 h-4" />
+                    </Link>
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {featuredOpportunities.map((opportunity) => (
+                    <div key={opportunity.id} className="border border-border rounded-lg p-4 hover:bg-accent/5 transition-colors">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground mb-1">{opportunity.title}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{opportunity.description}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              Deadline: {opportunity.deadline}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              {opportunity.applicants} applicants
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <Badge variant="outline">{opportunity.type}</Badge>
+                          <div className="flex items-center gap-1">
+                            <div className={`w-2 h-2 rounded-full ${getDifficultyColor(opportunity.difficulty)}`}></div>
+                            <span className="text-xs text-muted-foreground">{opportunity.difficulty}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Upcoming Events */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    Upcoming Events
+                  </CardTitle>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/events">
+                      View All <ArrowRight className="ml-1 w-4 h-4" />
+                    </Link>
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {upcomingEvents.map((event) => {
+                    const TypeIcon = getTypeIcon(event.type);
+                    return (
+                      <div key={event.id} className="border border-border rounded-lg p-4 hover:bg-accent/5 transition-colors">
+                        <div className="flex items-start gap-3">
+                          <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-lg">
+                            <TypeIcon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-foreground mb-1">{event.title}</h4>
+                            <div className="space-y-1 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {event.date} at {event.time}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {event.location}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {event.participants} participants
+                              </div>
+                            </div>
+                          </div>
+                          <Badge variant="outline">{event.type}</Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="space-y-6">
+              {/* Recent Activities */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-accent" />
+                    Recent Activities
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {recentActivities.map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={activity.avatar} alt={activity.user} />
+                        <AvatarFallback>{activity.user.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground">
+                          <span className="font-medium">{activity.user}</span>{' '}
+                          <span className="text-muted-foreground">{activity.action}</span>{' '}
+                          <span className="font-medium">{activity.content}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link to="/community">
+                      View All Activities <ArrowRight className="ml-1 w-4 h-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button asChild className="w-full justify-start">
+                    <Link to="/community">
+                      <MessageCircle className="mr-2 w-4 h-4" />
+                      Create a Post
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-start">
+                    <Link to="/opportunities">
+                      <Star className="mr-2 w-4 h-4" />
+                      Browse Opportunities
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-start">
+                    <Link to="/leaderboard">
+                      <Trophy className="mr-2 w-4 h-4" />
+                      View Leaderboard
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-start">
+                    <Link to="/profile">
+                      <Users className="mr-2 w-4 h-4" />
+                      Edit Profile
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Progress Tracker */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-success" />
+                    Your Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Profile Completion</span>
+                      <span className="font-medium">85%</span>
+                    </div>
+                    <Progress value={85} className="h-2" />
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Community Engagement</span>
+                      <span className="font-medium">72%</span>
+                    </div>
+                    <Progress value={72} className="h-2" />
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Skill Development</span>
+                      <span className="font-medium">60%</span>
+                    </div>
+                    <Progress value={60} className="h-2" />
+                  </div>
+                  
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link to="/profile">
+                      Complete Profile <ArrowRight className="ml-1 w-4 h-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
