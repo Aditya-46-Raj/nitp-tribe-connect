@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PostCard from "@/components/PostCard";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,10 +17,29 @@ import {
   TrendingUp,
   Users,
   Calendar,
-  Star
+  Star,
+  X
 } from "lucide-react";
 
-const mockPosts = [
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  author: {
+    name: string;
+    email: string;
+    role: 'admin' | 'contributor' | 'user';
+    badge: string;
+  };
+  tags: string[];
+  createdAt: string;
+  likes: number;
+  comments: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
+}
+
+const mockPosts: Post[] = [
   {
     id: "1",
     title: "Seeking Team for Hackathon at IIT Delhi",
@@ -88,11 +111,23 @@ const mockPosts = [
 ];
 
 const Home = () => {
+  const { profile } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [posts] = useState(mockPosts);
+  const [posts, setPosts] = useState(mockPosts);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  
+  // Create post form state
+  const [newPost, setNewPost] = useState({
+    title: "",
+    content: "",
+    category: "",
+    tags: [] as string[]
+  });
+  const [newTag, setNewTag] = useState("");
 
   const tags = ["opportunity", "help", "project", "announcement"];
+  const categories = ["General", "Academic", "Career", "Technical", "Social"];
   
   const filteredPosts = posts.filter(post => {
     const matchesSearch = searchQuery === "" || 
@@ -103,6 +138,56 @@ const Home = () => {
     
     return matchesSearch && matchesTag;
   });
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !newPost.tags.includes(newTag.trim())) {
+      setNewPost(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setNewPost(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleCreatePost = () => {
+    if (!newPost.title.trim() || !newPost.content.trim()) return;
+    
+    const post = {
+      id: `${Date.now()}`,
+      title: newPost.title,
+      content: newPost.content,
+      author: {
+        name: profile?.name || "Anonymous User",
+        email: profile?.email || "user@example.com",
+        role: profile?.role || 'user' as const,
+        badge: profile?.batch || "Student"
+      },
+      tags: newPost.tags,
+      createdAt: new Date().toISOString(),
+      likes: 0,
+      comments: 0,
+      isLiked: false,
+      isBookmarked: false
+    };
+
+    setPosts(prev => [post, ...prev]);
+    
+    // Reset form
+    setNewPost({
+      title: "",
+      content: "",
+      category: "",
+      tags: []
+    });
+    setIsCreateDialogOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,10 +203,103 @@ const Home = () => {
                 <h1 className="text-2xl font-bold text-foreground">Community Feed</h1>
                 <p className="text-muted-foreground">Stay connected with your NITP community</p>
               </div>
-              <Button variant="accent" className="w-fit">
-                <Plus size={16} />
-                Create Post
-              </Button>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-fit">
+                    <Plus size={16} />
+                    Create Post
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Create New Post</DialogTitle>
+                  </DialogHeader>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        placeholder="Enter post title..."
+                        value={newPost.title}
+                        onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="category">Category</Label>
+                      <Select 
+                        value={newPost.category} 
+                        onValueChange={(value) => setNewPost(prev => ({ ...prev, category: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="content">Content</Label>
+                      <Textarea
+                        id="content"
+                        placeholder="What would you like to share with the community?"
+                        value={newPost.content}
+                        onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+                        rows={6}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="tags">Tags</Label>
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          placeholder="Add a tag..."
+                          value={newTag}
+                          onChange={(e) => setNewTag(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+                        />
+                        <Button type="button" onClick={handleAddTag}>
+                          Add
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {newPost.tags.map((tag) => (
+                          <Badge key={tag} className="flex items-center gap-1">
+                            #{tag}
+                            <X 
+                              size={12} 
+                              className="cursor-pointer hover:text-destructive" 
+                              onClick={() => handleRemoveTag(tag)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end gap-2 pt-4">
+                      <Button 
+                        type="button" 
+                        onClick={() => setIsCreateDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={handleCreatePost}
+                        disabled={!newPost.title.trim() || !newPost.content.trim()}
+                      >
+                        Create Post
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* Search and Filters */}

@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Profile {
   id: string;
@@ -15,9 +13,13 @@ interface Profile {
   updated_at: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+}
+
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   profile: Profile | null;
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
@@ -39,126 +41,79 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
-
-      setProfile(data as Profile);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
+  // Mock profile data for UI demonstration
+  const mockProfile: Profile = {
+    id: 'mock-id-1',
+    user_id: 'mock-user-1',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    bio: 'Software Developer passionate about technology',
+    avatar_url: null,
+    role: 'user',
+    batch: '2024',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
 
-  const refreshProfile = async () => {
-    if (user) {
-      await fetchProfile(user.id);
-    }
+  const mockUser: User = {
+    id: 'mock-user-1',
+    email: 'john.doe@example.com',
   };
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      
+    // Simulate loading time for UI demonstration
+    const timer = setTimeout(() => {
+      setUser(mockUser);
+      setProfile(mockProfile);
       setLoading(false);
-    });
+    }, 1000);
 
-    return () => subscription.unsubscribe();
+    return () => clearTimeout(timer);
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
-    // Use OTP-based signup instead of password
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        data: {
-          name: name
-        }
-      }
-    });
-    
-    return { error };
+    // Mock signup - just set the user as logged in
+    setUser({ id: 'mock-user-1', email });
+    setProfile({ ...mockProfile, email, name });
+    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    
-    return { error };
+    // Mock signin - just set the user as logged in
+    setUser({ id: 'mock-user-1', email });
+    setProfile({ ...mockProfile, email });
+    return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user) return { error: new Error('No user logged in') };
-
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('user_id', user.id);
-
-    if (!error) {
-      await refreshProfile();
+    if (profile) {
+      setProfile({ ...profile, ...updates });
     }
-
-    return { error };
+    return { error: null };
   };
 
-  const value: AuthContextType = {
+  const refreshProfile = async () => {
+    // No need to refresh in mock mode
+  };
+
+  const value = {
     user,
-    session,
     profile,
     loading,
     signUp,
     signIn,
     signOut,
     updateProfile,
-    refreshProfile
+    refreshProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
