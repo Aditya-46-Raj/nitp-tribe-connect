@@ -73,13 +73,13 @@ const Navbar = () => {
         <div className="fixed inset-0 z-40 md:hidden">
           {/* Blurred Background */}
           <div 
-            className="absolute inset-0 bg-background/80 backdrop-blur-md transition-opacity duration-300"
+            className="absolute inset-0 bg-black/50 backdrop-blur-md transition-opacity duration-300"
             onClick={closeMobileMenu}
           />
           
-          {/* Slide-in Menu */}
-          <div className="absolute left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl transform transition-transform duration-300 ease-out">
-            <div className="flex flex-col h-full">
+          {/* Slide-in Menu from Left */}
+          <div className="absolute left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl transform transition-transform duration-300 ease-out overflow-y-auto">
+            <div className="flex flex-col min-h-full">
               {/* Menu Header */}
               <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center space-x-3">
@@ -122,7 +122,7 @@ const Navbar = () => {
               </div>
               
               {/* Navigation Items */}
-              <div className="flex-1 py-4">
+              <div className="py-4">
                 {visibleNavItems.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -179,7 +179,7 @@ const Navbar = () => {
 
       <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <img src={nitpLogo} alt="NITP Tribe" className="h-8 w-8" />
@@ -189,8 +189,8 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center space-x-1 flex-1 justify-center">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
               return (
