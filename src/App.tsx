@@ -9,6 +9,7 @@ import Admin from "./pages/Admin";
 import PostEditor from "./pages/PostEditor";
 import Opportunities from "./pages/Opportunities";
 import Leaderboard from "./pages/Leaderboard";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
@@ -98,6 +99,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <Leaderboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             } 
           />

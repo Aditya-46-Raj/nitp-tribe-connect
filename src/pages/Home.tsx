@@ -107,6 +107,57 @@ const mockPosts: Post[] = [
     comments: 12,
     isLiked: true,
     isBookmarked: true
+  },
+  {
+    id: "5",
+    title: "Placement Drive: Amazon, Google, Microsoft",
+    content: "Upcoming placement drives at NITP! Amazon, Google, and Microsoft are visiting campus next month. Make sure to prepare your resumes and practice coding problems. Drop me a message if you need help with preparation.",
+    author: {
+      name: "Rajesh Kumar",
+      email: "rajesh.kumar@nitp.ac.in",
+      role: 'admin' as const,
+      badge: "Placement Cell"
+    },
+    tags: ["placement", "opportunity", "career"],
+    createdAt: "2024-01-17T14:30:00Z",
+    likes: 89,
+    comments: 25,
+    isLiked: false,
+    isBookmarked: true
+  },
+  {
+    id: "6",
+    title: "Summer Internship Opportunities 2024",
+    content: "Compiled a list of summer internship opportunities for 2024. Includes positions at startups, MNCs, and research organizations. Application deadlines are approaching fast!",
+    author: {
+      name: "Neha Agarwal",
+      email: "neha.agarwal@nitp.ac.in",
+      role: 'contributor' as const,
+      badge: "Career Counselor"
+    },
+    tags: ["internship", "opportunity", "career"],
+    createdAt: "2024-01-16T11:20:00Z",
+    likes: 67,
+    comments: 18,
+    isLiked: true,
+    isBookmarked: false
+  },
+  {
+    id: "7",
+    title: "TechFest 2024 Hackathon Registration Open",
+    content: "NITP TechFest 2024 hackathon registration is now open! 48-hour coding challenge with exciting prizes. Team size: 2-4 members. Topics include AI/ML, Web Development, Mobile Apps, and IoT.",
+    author: {
+      name: "Ankit Sharma",
+      email: "ankit.sharma@nitp.ac.in",
+      role: 'user' as const,
+      badge: "Tech Committee"
+    },
+    tags: ["hackathon", "event", "competition"],
+    createdAt: "2024-01-15T09:45:00Z",
+    likes: 42,
+    comments: 11,
+    isLiked: false,
+    isBookmarked: true
   }
 ];
 
@@ -126,7 +177,7 @@ const Home = () => {
   });
   const [newTag, setNewTag] = useState("");
 
-  const tags = ["opportunity", "help", "project", "announcement"];
+  const tags = ["opportunity", "help", "project", "announcement", "placement", "internship", "hackathon", "research", "startup", "mentorship"];
   const categories = ["General", "Academic", "Career", "Technical", "Social"];
   
   const filteredPosts = posts.filter(post => {
@@ -398,12 +449,42 @@ const Home = () => {
               <CardContent className="p-4">
                 <h3 className="font-semibold text-foreground mb-4">Trending Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">#placement</Badge>
-                  <Badge variant="secondary">#internship</Badge>
-                  <Badge variant="secondary">#hackathon</Badge>
-                  <Badge variant="secondary">#research</Badge>
-                  <Badge variant="secondary">#startup</Badge>
-                  <Badge variant="secondary">#mentorship</Badge>
+                  <Badge 
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedTag(selectedTag === "placement" ? null : "placement")}
+                  >
+                    #placement
+                  </Badge>
+                  <Badge 
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedTag(selectedTag === "internship" ? null : "internship")}
+                  >
+                    #internship
+                  </Badge>
+                  <Badge 
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedTag(selectedTag === "hackathon" ? null : "hackathon")}
+                  >
+                    #hackathon
+                  </Badge>
+                  <Badge 
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedTag(selectedTag === "research" ? null : "research")}
+                  >
+                    #research
+                  </Badge>
+                  <Badge 
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedTag(selectedTag === "startup" ? null : "startup")}
+                  >
+                    #startup
+                  </Badge>
+                  <Badge 
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedTag(selectedTag === "mentorship" ? null : "mentorship")}
+                  >
+                    #mentorship
+                  </Badge>
                 </div>
               </CardContent>
             </Card>

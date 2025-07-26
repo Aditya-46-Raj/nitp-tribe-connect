@@ -1,8 +1,16 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Home, 
   User, 
@@ -20,11 +28,11 @@ import { useAuth } from "@/contexts/AuthContext";
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { profile, signOut } = useAuth();
 
   const navItems = [
     { name: "Home", path: "/", icon: Home, roles: ['admin', 'contributor', 'user'] },
-    { name: "Profile", path: "/profile", icon: User, roles: ['admin', 'contributor', 'user'] },
     { name: "Community", path: "/community", icon: Users, roles: ['admin', 'contributor', 'user'] },
     { name: "Opportunities", path: "/opportunities", icon: Calendar, roles: ['admin', 'contributor', 'user'] },
     { name: "Leaderboard", path: "/leaderboard", icon: Trophy, roles: ['admin', 'contributor', 'user'] },
@@ -75,42 +83,49 @@ const Navbar = () => {
 
           {/* User Profile & Actions */}
           <div className="flex items-center space-x-4">
-            {/* Logout Button - Desktop */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut()}
-              className="hidden md:flex items-center space-x-2 text-muted-foreground hover:text-foreground"
-            >
-              <LogOut size={16} />
-              <span>Sign Out</span>
-            </Button>
-
-            {/* User Avatar */}
-            <div className="flex items-center space-x-3">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm font-medium text-foreground">{profile.name}</p>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
-                    {profile.role}
-                  </Badge>
-                  {profile.batch && (
-                    <Badge variant="outline" className="text-xs">
-                      {profile.batch}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                <AvatarImage 
-                  src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
-                  alt={profile.name} 
-                />
-                <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                  {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-            </div>
+            {/* User Profile Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-auto p-2 hover:bg-accent rounded-lg transition-colors">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-foreground hidden sm:block">
+                      {profile.name.split(' ')[0]}
+                    </span>
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage 
+                        src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
+                        alt={profile.name} 
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                        {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{profile.name}</p>
+                    <p className="text-xs text-muted-foreground">{profile.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Mobile Menu Button */}
             <Button
