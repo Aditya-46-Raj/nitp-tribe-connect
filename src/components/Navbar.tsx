@@ -86,22 +86,20 @@ const Navbar = () => {
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="h-auto p-2 hover:bg-accent rounded-lg transition-colors">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-foreground hidden sm:block">
-                      {profile.name.split(' ')[0]}
-                    </span>
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage 
-                        src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
-                        alt={profile.name} 
-                      />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                </Button>
+                <div className="cursor-pointer group flex items-center space-x-2">
+                  <span className="text-sm font-medium text-foreground hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
+                    {profile.name.split(' ')[0]}
+                  </span>
+                  <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all duration-200">
+                    <AvatarImage 
+                      src={profile.avatar_url || "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&crop=face"} 
+                      alt={profile.name} 
+                    />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      {profile.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
