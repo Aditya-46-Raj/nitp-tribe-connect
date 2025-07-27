@@ -198,13 +198,13 @@ const Home = () => {
                 collaboration, and community growth at NIT Patna.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <Button asChild className="h-12 px-8 text-lg bg-white text-primary hover:bg-white/90 hover:scale-105 hover:shadow-lg transition-all duration-300 ease-out">
+                <Button asChild className="h-12 px-8 text-lg bg-white text-primary hover:bg-white/95 hover:scale-[1.02] hover:shadow-md transition-all duration-200 ease-in-out">
                   <Link to="/opportunities">
                     <Target className="mr-2" size={20} />
                     Explore Opportunities
                   </Link>
                 </Button>
-                <Button asChild className="h-12 px-8 text-lg bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white hover:text-primary hover:scale-105 hover:shadow-lg transition-all duration-300 ease-out">
+                <Button asChild className="h-12 px-8 text-lg bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 hover:border-white/50 hover:scale-[1.02] hover:shadow-md transition-all duration-200 ease-in-out">
                   <Link to="/community">
                     <Users className="mr-2" size={20} />
                     Join Community
