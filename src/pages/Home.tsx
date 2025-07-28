@@ -5,6 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -24,7 +29,11 @@ import {
   Briefcase,
   Zap,
   Target,
-  Globe
+  Globe,
+  Plus,
+  X,
+  Link as LinkIcon,
+  Tag
 } from "lucide-react";
 
 // Quick stats data
@@ -131,6 +140,25 @@ const featuredOpportunities = [
 const Home = () => {
   const { profile } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  
+  // Create post form state
+  const [newPost, setNewPost] = useState({
+    title: "",
+    description: "",
+    content: "",
+    category: "",
+    type: "general",
+    tags: [] as string[],
+    applicationLink: "",
+    deadline: "",
+    location: ""
+  });
+  const [newTag, setNewTag] = useState("");
+
+  const postCategories = ["General", "Academic", "Career", "Technical", "Social", "Events"];
+  const postTypes = ["general", "opportunity", "event", "announcement", "help", "project"];
+  const suggestedTags = ["internship", "placement", "hackathon", "research", "startup", "mentorship", "help", "project", "announcement", "event"];
   
   // Listen for mobile menu toggle events
   useEffect(() => {
@@ -170,6 +198,59 @@ const Home = () => {
       case "Research": return Globe;
       default: return Calendar;
     }
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !newPost.tags.includes(newTag.trim())) {
+      setNewPost(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setNewPost(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const addSuggestedTag = (tag: string) => {
+    if (!newPost.tags.includes(tag)) {
+      setNewPost(prev => ({
+        ...prev,
+        tags: [...prev.tags, tag]
+      }));
+    }
+  };
+
+  const handleCreatePost = () => {
+    if (!newPost.title.trim() || !newPost.description.trim()) {
+      alert("Please fill in at least the title and description.");
+      return;
+    }
+    
+    // Here you would typically send the post to your backend
+    console.log("Creating post:", newPost);
+    
+    // Reset form
+    setNewPost({
+      title: "",
+      description: "",
+      content: "",
+      category: "",
+      type: "general",
+      tags: [],
+      applicationLink: "",
+      deadline: "",
+      location: ""
+    });
+    setIsCreatePostOpen(false);
+    
+    // Show success message (you could replace this with a toast)
+    alert("Post created successfully!");
   };
 
   return (
@@ -395,11 +476,12 @@ const Home = () => {
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button asChild className="w-full justify-start">
-                    <Link to="/community">
-                      <MessageCircle className="mr-2 w-4 h-4" />
-                      Create a Post
-                    </Link>
+                  <Button 
+                    onClick={() => setIsCreatePostOpen(true)}
+                    className="w-full justify-start"
+                  >
+                    <MessageCircle className="mr-2 w-4 h-4" />
+                    Create a Post
                   </Button>
                   <Button asChild variant="outline" className="w-full justify-start">
                     <Link to="/opportunities">
@@ -465,6 +547,210 @@ const Home = () => {
             </div>
           </div>
         </div>
+        
+        {/* Create Post Dialog */}
+        <Dialog open={isCreatePostOpen} onOpenChange={setIsCreatePostOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                Create New Post
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title *</Label>
+                  <Input
+                    id="title"
+                    placeholder="Enter post title..."
+                    value={newPost.title}
+                    onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select 
+                    value={newPost.category} 
+                    onValueChange={(value) => setNewPost(prev => ({ ...prev, category: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {postCategories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description">Short Description *</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Brief description of your post..."
+                  value={newPost.description}
+                  onChange={(e) => setNewPost(prev => ({ ...prev, description: e.target.value }))}
+                  rows={2}
+                />
+              </div>
+
+              {/* Content with Markdown Support */}
+              <div className="space-y-2">
+                <Label htmlFor="content">Content (Markdown Supported)</Label>
+                <Textarea
+                  id="content"
+                  placeholder="Write your detailed content here... You can use markdown formatting like **bold**, *italic*, ### headers, etc."
+                  value={newPost.content}
+                  onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+                  rows={8}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Supports markdown formatting: **bold**, *italic*, `code`, [links](url), lists, headers, etc.
+                </p>
+              </div>
+
+              {/* Post Type and Additional Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="type">Post Type</Label>
+                  <Select 
+                    value={newPost.type} 
+                    onValueChange={(value) => setNewPost(prev => ({ ...prev, type: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select post type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="opportunity">Opportunity</SelectItem>
+                      <SelectItem value="event">Event</SelectItem>
+                      <SelectItem value="announcement">Announcement</SelectItem>
+                      <SelectItem value="help">Help/Question</SelectItem>
+                      <SelectItem value="project">Project</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(newPost.type === "opportunity" || newPost.type === "event") && (
+                  <div className="space-y-2">
+                    <Label htmlFor="deadline">Deadline</Label>
+                    <Input
+                      id="deadline"
+                      type="date"
+                      value={newPost.deadline}
+                      onChange={(e) => setNewPost(prev => ({ ...prev, deadline: e.target.value }))}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Location and Application Link */}
+              {(newPost.type === "opportunity" || newPost.type === "event") && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      placeholder="Event location or 'Remote'"
+                      value={newPost.location}
+                      onChange={(e) => setNewPost(prev => ({ ...prev, location: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="applicationLink">Application/Registration Link</Label>
+                    <Input
+                      id="applicationLink"
+                      type="url"
+                      placeholder="https://example.com/apply"
+                      value={newPost.applicationLink}
+                      onChange={(e) => setNewPost(prev => ({ ...prev, applicationLink: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Tags */}
+              <div className="space-y-3">
+                <Label>Tags</Label>
+                <div className="flex gap-2 mb-2">
+                  <Input
+                    placeholder="Add a tag..."
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                    className="flex-1"
+                  />
+                  <Button type="button" onClick={handleAddTag}>
+                    <Tag className="w-4 h-4 mr-1" />
+                    Add
+                  </Button>
+                </div>
+                
+                {/* Selected Tags */}
+                {newPost.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {newPost.tags.map((tag) => (
+                      <Badge key={tag} className="flex items-center gap-1">
+                        #{tag}
+                        <X 
+                          size={12} 
+                          className="cursor-pointer hover:text-destructive" 
+                          onClick={() => handleRemoveTag(tag)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Suggested Tags */}
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Suggested tags:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedTags
+                      .filter(tag => !newPost.tags.includes(tag))
+                      .map((tag) => (
+                        <Badge 
+                          key={tag} 
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => addSuggestedTag(tag)}
+                        >
+                          #{tag}
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button 
+                  onClick={() => setIsCreatePostOpen(false)}
+                  className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleCreatePost}
+                  disabled={!newPost.title.trim() || !newPost.description.trim()}
+                  className="bg-primary text-primary-foreground hover:bg-primary-hover"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Create Post
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
